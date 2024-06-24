@@ -33,7 +33,7 @@
 .link {
   display: flex;
   align-items: center;
-  padding: 10px 20px;
+  padding: 10px 10px;
   text-decoration: none;
   color: white;
   transition: background 0.3s;
@@ -68,7 +68,7 @@
 }
 
 .segment {
-  width: 80%; 
+  width: 100%; 
   padding: 10px;
   margin-bottom: 10px;
 }
@@ -77,4 +77,8 @@
   width: 100%; 
   padding: 10px;
   margin-bottom: 10px;
+}
+
+.ui form{
+  font-size: 17px;
 }

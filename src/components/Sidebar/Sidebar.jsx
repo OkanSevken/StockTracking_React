@@ -12,14 +12,19 @@ const Sidebar = () => {
 
     const menuItem = [
         {
-            path: "/partList",
+            path: "/PartList",
             name: "Parça Listesi",
             icon: <FaTh />
         },
         {
-            path: "/partMovement", 
+            path: "/CreatePartMovement", 
             name: "Stok İşlemleri",
             icon: <FaUserAlt />
+        },
+        {
+            path: "/CreateWarehousePart", 
+            name: "Parça Depo İşlemleri",
+            icon: <FaTh />
         }
     ];
 

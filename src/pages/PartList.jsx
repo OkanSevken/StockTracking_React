@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Table, Segment, Header, Loader, Dimmer, Icon, Menu,Button } from "semantic-ui-react";
+import { Table, Segment, Header, Loader, Dimmer, Icon, Menu, Button } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
 function PartList() {
   const [parts, setParts] = useState([]);
-  const [openPartId, setOpenPartId] = useState(null); 
+  const [openPartId, setOpenPartId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
 
   useEffect(() => {
     fetchParts();
@@ -36,13 +38,26 @@ function PartList() {
     // Silme işlemleri burada yapılabilir
   };
 
+  const handlePageChange = (direction) => {
+    if (direction === 'next') {
+      setCurrentPage((prevPage) => prevPage + 1);
+    } else if (direction === 'prev') {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = parts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(parts.length / itemsPerPage);
+
   return (
     <Segment>
       <Header as="h2" textAlign="center">Parça Listesi</Header>
       <Dimmer active={loading}>
         <Loader>Loading</Loader>
       </Dimmer>
-      <Table celled striped>
+      <Table celled striped style={{ fontSize: '17px' }}>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>İşlemler</Table.HeaderCell>
@@ -59,7 +74,7 @@ function PartList() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {parts.map((part) => (
+          {currentItems.map((part) => (
             <Table.Row key={part.id}>
               <Table.Cell>
                 <div onClick={() => toggleMenu(part.id)}>
@@ -71,7 +86,7 @@ function PartList() {
                       <Menu.Item onClick={() => handleDeleteClick(part.id)}>Sil</Menu.Item>
                     </Menu>
                   )}
-                </div> 
+                </div>
               </Table.Cell>
               <Table.Cell>{part.name}</Table.Cell>
               <Table.Cell>{part.description}</Table.Cell>
@@ -89,14 +104,20 @@ function PartList() {
           ))}
         </Table.Body>
       </Table>
-      <div style={{ marginTop: "20px", textAlign: "right" }}>
-        <Button as={Link} to="/appointments/add" color="green">
-          Parça Kaydet
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
+        <Button as={Link} to="/CreatePart" color="green">
+          Yeni Parça Kaydet
         </Button>
+        <div>
+          <Button onClick={() => handlePageChange('prev')} disabled={currentPage === 1}>
+            Önceki
+          </Button>
+          <Button onClick={() => handlePageChange('next')} disabled={currentPage === totalPages}>
+            Sonraki
+          </Button>
+        </div>
       </div>
     </Segment>
-    
-    
   );
 }
 

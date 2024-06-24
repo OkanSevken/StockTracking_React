@@ -13,7 +13,7 @@ export default function Login() {
             const response = await loginService.login(values.email, values.password); 
             console.log(response);
 
-            navigate('/partList');
+            navigate('/PartList');
         } catch (error) {
             console.error("Giriş hatası:", error);
             alert("Giriş hatası: Kullanıcı adı veya şifre yanlış olabilir.");

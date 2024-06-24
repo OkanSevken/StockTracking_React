@@ -7,6 +7,8 @@ import PartList from './pages/PartList';
 import Sidebar from './components/Sidebar/Sidebar';
 import Login from './pages/Login';
 import PartMovementAdd from './pages/PartMovementAdd';
+import WarehousePart from './pages/WarehousePart';
+import PartAdd from './pages/PartAdd';
 
 const App = () => {
   const location = useLocation();
@@ -21,9 +23,11 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/home" element={<HomePage />} />
-          <Route path="/partList" element={<PartList />} />
+          <Route path="/PartList" element={<PartList />} />
           <Route path="/login" element={<Login />} />
-          <Route path='/partMovement' element={<PartMovementAdd/>} />
+          <Route path='/CreatePartMovement' element={<PartMovementAdd/>} />
+          <Route path='/CreateWarehousePart' element={<WarehousePart/>} />
+          <Route path='/CreatePart' element={<PartAdd/>} />
         </Routes>
       </div>
     </div>

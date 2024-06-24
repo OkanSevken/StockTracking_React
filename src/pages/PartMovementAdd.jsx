@@ -75,7 +75,7 @@ export default function PartMovementAdd() {
       console.log("Başarılı:", response);
       alert("Parça hareketi başarıyla oluşturuldu!");
       resetForm();
-      navigate('/partList'); 
+      navigate('/PartList'); 
     } catch (error) {
       console.error("Hata:", error);
       if (error.response) {
@@ -102,10 +102,10 @@ export default function PartMovementAdd() {
       <Header as="h2" textAlign="center">
         Stok Giriş-Çıkış
       </Header>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto"}}>
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
           {({ isSubmitting, setFieldValue, values }) => (
-            <Form className="ui form">
+            <Form className="ui form" style={{ fontSize: '17px' }}>
               <FormField>
                 <label>Parça Adı</label>
                 <Field
@@ -142,7 +142,7 @@ export default function PartMovementAdd() {
                 {fetchingWarehouses && <Loader active inline size="small" />}
               </FormField>
               <FormField>
-                <label>Parça Adeti</label>
+                <label>Parça Adedi</label>
                 <Field
                   name="amount"
                   type="number"
@@ -155,7 +155,7 @@ export default function PartMovementAdd() {
                 <Field
                   name="price"
                   type="number"
-                  placeholder="Fiyat"
+                  placeholder="Fiyat(Kdv Hariç)"
                   style={{ width: "100%" }}
                 />
               </FormField>
