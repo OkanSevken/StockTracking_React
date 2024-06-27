@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field } from 'formik';
 import { FormField, Button, Segment, Header, Loader } from 'semantic-ui-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function WarehousePart() {
   const [parts, setParts] = useState([]);
@@ -10,6 +11,7 @@ export default function WarehousePart() {
   const [loadingWarehouses, setLoadingWarehouses] = useState(true);
   const [existingMatches, setExistingMatches] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchParts();
@@ -65,6 +67,7 @@ export default function WarehousePart() {
         console.log('Başarılı:', response);
         alert('Depo parça eşleşmesi başarıyla oluşturuldu!');
         resetForm();
+        navigate('/PartList');
         fetchExistingMatches(); 
       }
     } catch (error) {
@@ -99,12 +102,12 @@ export default function WarehousePart() {
           {({ isSubmitting, setFieldValue, values }) => (
             <Form className="ui form" style={{ fontSize: '17px' }}>
               <FormField>
-                <label>Parça Adı</label>
+                <label>Parça Kodu</label>
                 <Field as="select" name="partId" value={values.partId} onChange={(e) => setFieldValue('partId', e.target.value)}>
-                  <option value="">Parça Seçin</option>
+                  <option value="">Parça Kodu Seçin</option>
                   {parts.map((part) => (
                     <option key={part.id} value={part.id}>
-                      {part.name}
+                      {part.partCode}
                     </option>
                   ))}
                 </Field>

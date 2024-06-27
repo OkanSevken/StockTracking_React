@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import PartMovementAdd from './pages/PartMovementAdd';
 import WarehousePart from './pages/WarehousePart';
 import PartAdd from './pages/PartAdd';
+import PartDetail from './pages/PartDetail';
 
 const App = () => {
   const location = useLocation();
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/PartList" element={<PartList />} />
+          <Route path="/PartDetail/:id" element={<PartDetail/>} />
           <Route path="/login" element={<Login />} />
           <Route path='/CreatePartMovement' element={<PartMovementAdd/>} />
           <Route path='/CreateWarehousePart' element={<WarehousePart/>} />

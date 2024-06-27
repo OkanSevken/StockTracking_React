@@ -12,22 +12,22 @@ export default function PartMovementAdd() {
   const navigate = useNavigate(); 
 
   useEffect(() => {
-    fetchParts();
+    fetchPartCodes();
   }, []);
 
-  const fetchParts = async () => {
+  const fetchPartCodes = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/WarehousePart/GetAllWarehouseParts"
+        "http://localhost:5000/api/Part/GetAllParts"
       );
 
       const uniquePartsMap = new Map();
 
       response.data.forEach((part) => {
-        if (!uniquePartsMap.has(part.partId)) {
-          uniquePartsMap.set(part.partId, {
-            partId: part.partId,
-            partName: part.partName,
+        if (!uniquePartsMap.has(part.id)) {
+          uniquePartsMap.set(part.id, {
+            id: part.id,
+            partCode: part.partCode,
           });
         }
       });
@@ -41,7 +41,7 @@ export default function PartMovementAdd() {
     }
   };
 
-  const handleWarehouseChange = async (selectedPartId, setFieldValue) => {
+  const fetchWarehousesForPart = async (selectedPartId, setFieldValue) => {
     setFetchingWarehouses(true);
     try {
       const response = await axios.post(
@@ -107,19 +107,19 @@ export default function PartMovementAdd() {
           {({ isSubmitting, setFieldValue, values }) => (
             <Form className="ui form" style={{ fontSize: '17px' }}>
               <FormField>
-                <label>Parça Adı</label>
+                <label>Parça Kodu</label>
                 <Field
                   as="select"
                   name="partId"
                   onChange={(e) =>
-                    handleWarehouseChange(e.target.value, setFieldValue)
+                    fetchWarehousesForPart(e.target.value, setFieldValue)
                   }
                   value={values.partId}
                 >
-                  <option value="">Parça Seçin</option>
+                  <option value="">Parça Kodu Seçin</option>
                   {parts.map((part) => (
-                    <option key={part.partId} value={part.partId}>
-                      {part.partName}
+                    <option key={part.id} value={part.id}>
+                      {part.partCode}
                     </option>
                   ))}
                 </Field>

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import {
     FaTh,
     FaBars,
-    FaUserAlt
+    FaCogs ,
+    FaWarehouse
 } from "react-icons/fa";
 import { NavLink } from 'react-router-dom';
 
@@ -19,12 +20,12 @@ const Sidebar = () => {
         {
             path: "/CreatePartMovement", 
             name: "Stok İşlemleri",
-            icon: <FaUserAlt />
+            icon: <FaCogs  />
         },
         {
             path: "/CreateWarehousePart", 
             name: "Parça Depo İşlemleri",
-            icon: <FaTh />
+            icon: <FaWarehouse />
         }
     ];
 
@@ -42,7 +43,7 @@ const Sidebar = () => {
                     to={item.path}
                     key={index}
                     className="link"
-                    activeclassname="active"  // activeclassname prop'unu kullanın
+                    activeclassname="active"  
                 >
                     <div className="icon">{item.icon}</div>
                     <div className="link_text" style={{ display: isOpen ? "block" : "none" }}>{item.name}</div>

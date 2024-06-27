@@ -3,6 +3,7 @@ import { Table, Segment, Header, Loader, Dimmer, Icon, Menu, Button } from "sema
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+
 function PartList() {
   const [parts, setParts] = useState([]);
   const [openPartId, setOpenPartId] = useState(null);
@@ -61,45 +62,35 @@ function PartList() {
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>İşlemler</Table.HeaderCell>
+            <Table.HeaderCell>Kategori Adı</Table.HeaderCell>
             <Table.HeaderCell>Parça Adı</Table.HeaderCell>
-            <Table.HeaderCell>Açıklama</Table.HeaderCell>
-            <Table.HeaderCell>Marka Adı</Table.HeaderCell>
-            <Table.HeaderCell>Model Adı</Table.HeaderCell>
-            <Table.HeaderCell>Alış Fiyatı</Table.HeaderCell>
-            <Table.HeaderCell>Satış Fiyatı</Table.HeaderCell>
-            <Table.HeaderCell>KDV Oranı</Table.HeaderCell>
-            <Table.HeaderCell>Ödenecek KDV Tutarı</Table.HeaderCell>
+            <Table.HeaderCell>Parça Kodu</Table.HeaderCell>
             <Table.HeaderCell>Stok Miktarı</Table.HeaderCell>
-            <Table.HeaderCell>Kar</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {currentItems.map((part) => (
             <Table.Row key={part.id}>
-              <Table.Cell>
+              <Table.Cell className="settings-cell">
                 <div onClick={() => toggleMenu(part.id)}>
-                  <Icon name='cog' />
+                  <Icon name='cog' className="settings-icon" />
                   {openPartId === part.id && (
-                    <Menu vertical>
-                      <Menu.Item as={Link} to={`/parts/${part.id}`}>Detay</Menu.Item>
-                      <Menu.Item onClick={() => handleUpdateClick(part.id)}>Güncelle</Menu.Item>
-                      <Menu.Item onClick={() => handleDeleteClick(part.id)}>Sil</Menu.Item>
-                    </Menu>
+                    <div className="settings-dropdown">
+                      <Menu>
+                        <Menu.Item as={Link} to={`/PartDetail/${part.id}`}>Detay</Menu.Item>
+                        {/* <Menu.Item onClick={() => handleUpdateClick(part.id)}>Güncelle</Menu.Item>
+                        <Menu.Item onClick={() => handleDeleteClick(part.id)}>Sil</Menu.Item> */}
+                      </Menu>
+                    </div>
                   )}
                 </div>
               </Table.Cell>
+              <Table.Cell>{part.categoryName}</Table.Cell>
               <Table.Cell>{part.name}</Table.Cell>
-              <Table.Cell>{part.description}</Table.Cell>
-              <Table.Cell>{part.brandName}</Table.Cell>
-              <Table.Cell>{part.modelName}</Table.Cell>
-              <Table.Cell>{part.purchasePrice}</Table.Cell>
-              <Table.Cell>{part.salePrice}</Table.Cell>
-              <Table.Cell>{part.vat}%</Table.Cell>
-              <Table.Cell>{part.vatPaid}</Table.Cell>
+              <Table.Cell>{part.partCode}</Table.Cell>
               <Table.Cell style={{ color: part.stock < 50 ? 'red' : 'black' }}>
                 {part.stock}
               </Table.Cell>
-              <Table.Cell>{part.profit}</Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>

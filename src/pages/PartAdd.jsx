@@ -1,45 +1,96 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field } from 'formik';
-import { FormField, Button, Segment, Header, Loader } from 'semantic-ui-react';
+import { FormField, Button, Segment, Header } from 'semantic-ui-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 export default function PartAdd() {
-  const [models, setModels] = useState([]);
-  const [loadingModels, setLoadingModels] = useState(true);
+  const [carBrands, setCarBrands] = useState([]);
+  const [carModels, setCarModels] = useState([]);
+  const [partBrands, setPartBrands] = useState([]);
+  const [partModels, setPartModels] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchModels();
+    fetchCarBrands();
+    fetchPartBrands();
+    fetchCategories();
   }, []);
 
-  const fetchModels = async () => {
+  const fetchCarBrands = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/PartBrandModel/GetAllPartBrandModels');
-      setModels(response.data);
-      setLoadingModels(false);
+      const response = await axios.get('http://localhost:5000/api/CarBrand/GetAllCarBrands');
+      setCarBrands(response.data);
     } catch (error) {
-      console.error('Modeller çekilirken hata:', error);
+      console.error('Araba markaları çekilirken hata:', error);
+    }
+  };
+
+  const fetchCarModels = async (selectedBrandId, setFieldValue) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/CarModel/GetListCarModelsFromBrand?id=${selectedBrandId}`);
+      setCarModels(response.data);
+      setFieldValue('carBrandId', selectedBrandId);
+    } catch (error) {
+      console.error('Araba modelleri çekilirken hata:', error);
+    }
+  };
+
+  const fetchPartBrands = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/PartBrand/GetAllPartBrands');
+      setPartBrands(response.data);
+    } catch (error) {
+      console.error('Parça markaları çekilirken hata:', error);
+    }
+  };
+
+  const fetchPartModels = async (selectedPartBrandId, setFieldValue) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/PartModel/GetListPartModelsFromBrand?id=${selectedPartBrandId}`);
+      setPartModels(response.data);
+      setFieldValue('partBrandId', selectedPartBrandId);
+    } catch (error) {
+      console.error('Parça modelleri çekilirken hata:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/Category/GetAllCategory');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Kategoriler çekilirken hata:', error);
     }
   };
 
   const initialValues = {
     name: '',
-    description: '',
+    partCode: '',
     purchasePrice: 0,
     vat: 0,
-    modelId: 0,
+    categoryId: '',
+    partModelId: 0,
+    carModelId: 0,
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/Part/CreateParts', values);
+      const requestData = {
+        ...values,
+        partModelId: parseInt(values.partModelId, 10), // partModelId'yi tam sayıya çeviriyoruz
+        carModelId: parseInt(values.carModelId, 10), // carModelId'yi tam sayıya çeviriyoruz
+        categoryId: parseInt(values.categoryId, 10) // categoryId'yi tam sayıya çeviriyoruz
+      };
+
+      const response = await axios.post('http://localhost:5000/api/Part/CreateParts', requestData);
       console.log('Başarılı:', response);
       alert('Parça başarıyla oluşturuldu!');
       resetForm();
-      navigate('/PartList'); 
+      navigate('/PartList');
     } catch (error) {
       console.error('Hata:', error);
       if (error.response) {
@@ -54,14 +105,6 @@ export default function PartAdd() {
     }
   };
 
-  if (loadingModels || loading) {
-    return (
-      <Loader active inline="centered" size="large">
-        Yükleniyor...
-      </Loader>
-    );
-  }
-
   return (
     <Segment>
       <Header as="h2" textAlign="center">
@@ -72,12 +115,110 @@ export default function PartAdd() {
           {({ isSubmitting, setFieldValue, values }) => (
             <Form className="ui form" style={{ fontSize: '17px' }}>
               <FormField>
+                <label>Araba Markası</label>
+                <Field
+                  as="select"
+                  name="carBrandId"
+                  value={values.carBrandId}
+                  onChange={(e) => {
+                    const selectedBrandId = e.target.value;
+                    setFieldValue('carBrandId', selectedBrandId);
+                    setFieldValue('carModelId', '');
+                    setFieldValue('partBrandId', '');
+                    setFieldValue('partModelId', '');
+                    fetchCarModels(selectedBrandId, setFieldValue);
+                  }}
+                >
+                  <option value="">Araba Markası Seçin</option>
+                  {carBrands.map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.brandName}
+                    </option>
+                  ))}
+                </Field>
+              </FormField>
+              <FormField>
+                <label>Araba Modeli</label>
+                <Field
+                  as="select"
+                  name="carModelId"
+                  value={values.carModelId}
+                  onChange={(e) => {
+                    const selectedModelId = e.target.value;
+                    setFieldValue('carModelId', selectedModelId);
+                    setFieldValue('partBrandId', '');
+                    setFieldValue('partModelId', '');
+                    fetchPartBrands(selectedModelId, setFieldValue);
+                  }}
+                >
+                  <option value="">Araba Modeli Seçin</option>
+                  {carModels.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.modelName}
+                    </option>
+                  ))}
+                </Field>
+              </FormField>
+              <FormField>
+                <label>Parça Markası</label>
+                <Field
+                  as="select"
+                  name="partBrandId"
+                  value={values.partBrandId}
+                  onChange={(e) => {
+                    const selectedPartBrandId = e.target.value;
+                    setFieldValue('partBrandId', selectedPartBrandId);
+                    setFieldValue('partModelId', '');
+                    fetchPartModels(selectedPartBrandId, setFieldValue);
+                  }}
+                >
+                  <option value="">Parça Markası Seçin</option>
+                  {partBrands.map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.brandName}
+                    </option>
+                  ))}
+                </Field>
+              </FormField>
+              <FormField>
+                <label>Parça Modeli</label>
+                <Field
+                  as="select"
+                  name="partModelId"
+                  value={values.partModelId}
+                  onChange={(e) => setFieldValue('partModelId', parseInt(e.target.value, 10))} // Tam sayıya çevirme
+                >
+                  <option value="">Parça Modeli Seçin</option>
+                  {partModels.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.modelName}
+                    </option>
+                  ))}
+                </Field>
+              </FormField>
+              <FormField>
+                <label>Kategori</label>
+                <Field
+                  as="select"
+                  name="categoryId"
+                  value={values.categoryId}
+                  onChange={(e) => setFieldValue('categoryId', e.target.value)}
+                >
+                  <option value="">Kategori Seçin</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.categoryName}
+                    </option>
+                  ))}
+                </Field>
+              </FormField>
+              <FormField>
                 <label>Parça Adı</label>
                 <Field name="name" type="text" placeholder="Parça Adı" />
               </FormField>
               <FormField>
-                <label>Açıklama</label>
-                <Field name="description" type="text" placeholder="Açıklama" />
+                <label>Parça Kodu</label>
+                <Field name="partCode" type="text" placeholder="Parça Kodu" />
               </FormField>
               <FormField>
                 <label>Alış Fiyatı</label>
@@ -87,23 +228,7 @@ export default function PartAdd() {
                 <label>KDV Yüzdesi</label>
                 <Field name="vat" type="number" placeholder="KDV" />
               </FormField>
-              <FormField>
-                <label>Model</label>
-                <Field
-                  as="select"
-                  name="modelId"
-                  value={values.modelId}
-                  onChange={(e) => setFieldValue('modelId', e.target.value)}
-                >
-                  <option value="">Marka Model Seçin</option>
-                  {models.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.brand} - {model.model} ({model.category})
-                    </option>
-                  ))}
-                </Field>
-              </FormField>
-              <Button    type="submit" color="teal" fluid size="large" disabled={isSubmitting}>
+              <Button type="submit" color="teal" fluid size="large" disabled={isSubmitting}>
                 Ekle
               </Button>
             </Form>
