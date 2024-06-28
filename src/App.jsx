@@ -10,6 +10,7 @@ import PartMovementAdd from './pages/PartMovementAdd';
 import WarehousePart from './pages/WarehousePart';
 import PartAdd from './pages/PartAdd';
 import PartDetail from './pages/PartDetail';
+import DropStock from './pages/DropStock';
 
 const App = () => {
   const location = useLocation();
@@ -27,7 +28,8 @@ const App = () => {
           <Route path="/PartList" element={<PartList />} />
           <Route path="/PartDetail/:id" element={<PartDetail/>} />
           <Route path="/login" element={<Login />} />
-          <Route path='/CreatePartMovement' element={<PartMovementAdd/>} />
+          <Route path='/StockAdd' element={<PartMovementAdd/>} />
+          <Route path='/DropStock' element={<DropStock/>}/>
           <Route path='/CreateWarehousePart' element={<WarehousePart/>} />
           <Route path='/CreatePart' element={<PartAdd/>} />
         </Routes>

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Segment, Header, Loader, Dimmer, Button, Table } from "semantic-ui-react";
+import { Segment, Header, Loader, Dimmer, Button, Table, Modal } from "semantic-ui-react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 
 function PartDetail() {
-  const { id } = useParams(); // URL'den parametre olarak gelen parça id'sini alıyoruz
-  const [part, setPart] = useState(null); // Parça detayları için state
-  const [loading, setLoading] = useState(true); // Veri yüklenme durumu için state
+  const { id } = useParams();
+  const [part, setPart] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false); 
 
   useEffect(() => {
     fetchPartDetails();
@@ -15,34 +16,41 @@ function PartDetail() {
   const fetchPartDetails = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/Part/GetListPart?id=${id}`);
-      setPart(response.data[0]); // API'den gelen parça detaylarını state'e kaydediyoruz
-      setLoading(false); // Veri yükleme tamamlandı
+      setPart(response.data[0]);
+      setLoading(false);
     } catch (error) {
       console.error("Veri çekme hatası:", error);
-      setLoading(false); // Hata durumunda da loading durumunu false yapmalıyız
+      setLoading(false);
     }
   };
 
   const handleUpdateClick = () => {
     console.log("Güncelle: ", id);
-    // Güncelleme işlemleri burada yapılabilir, örneğin güncelleme sayfasına yönlendirme
-    // Programatik olarak yönlendirme örneği
     window.location.href = `/UpdatePart/${id}`;
   };
 
   const handleDeleteClick = () => {
-    console.log("Sil: ", id);
-    // Silme işlemleri burada yapılabilir
-    // Örnek olarak axios ile silme işlemi yapabilirsiniz
-    axios.delete(`http://localhost:5000/api/Part/DeletePart?id=${id}`)
-      .then(response => {
-        console.log("Silme işlemi başarılı:", response);
-        // Silme işlemi başarılı ise kullanıcıyı parça listesine yönlendirme
-        window.location.href = "/PartList";
-      })
-      .catch(error => {
-        console.error("Silme hatası:", error);
+    setDeleteModalOpen(true); // Modalı aç
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/Part/DeleteParts`, { id: id }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+      console.log("Silme işlemi başarılı:", response);
+      setDeleteModalOpen(false);
+      window.location.href = "/PartList";
+    } catch (error) {
+      console.error("Silme hatası:", error);
+      setDeleteModalOpen(false); 
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModalOpen(false); 
   };
 
   if (loading) {
@@ -55,7 +63,6 @@ function PartDetail() {
     );
   }
 
-  // Eğer parça bulunamadıysa veya hata oluşursa
   if (!part) {
     return (
       <Segment>
@@ -64,7 +71,6 @@ function PartDetail() {
     );
   }
 
-  // Parça bulunduysa, detayları göster
   return (
     <Segment>
       <Header as="h2" textAlign="center">Parça Detayı</Header>
@@ -99,10 +105,14 @@ function PartDetail() {
             <Table.Cell>{part.partModelName}</Table.Cell>
           </Table.Row>
           <Table.Row>
+            <Table.Cell><strong>Parça Model Yılı:</strong></Table.Cell>
+            <Table.Cell>{part.partModelYear}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
             <Table.Cell><strong>Stok Miktarı:</strong></Table.Cell>
             <Table.Cell style={{ color: part.stock < 50 ? 'red' : 'black' }}>
-                {part.stock}
-              </Table.Cell>
+              {part.stock}
+            </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell><strong>Alış Fiyatı:</strong></Table.Cell>
@@ -131,6 +141,21 @@ function PartDetail() {
         <Button onClick={handleUpdateClick} color="yellow">Güncelle</Button>
         <Button onClick={handleDeleteClick} color="red">Sil</Button>
       </div>
+
+      <Modal open={deleteModalOpen} onClose={cancelDelete} size="small">
+        <Header content="Parça Silme Onayı" />
+        <Modal.Content>
+          <p>Bu parçayı silmek istediğinizden emin misiniz?</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button negative onClick={cancelDelete}>
+            Hayır
+          </Button>
+          <Button positive onClick={confirmDelete}>
+            Evet
+          </Button>
+        </Modal.Actions>
+      </Modal>
     </Segment>
   );
 }

@@ -4,7 +4,8 @@ import { FormField, Button, Segment, Header, Loader } from "semantic-ui-react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
-export default function PartMovementAdd() {
+
+export default function DropStock() {
   const [parts, setParts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +101,7 @@ export default function PartMovementAdd() {
   return (
     <Segment>
       <Header as="h2" textAlign="center">
-        Stok Giriş
+        Stok Çıkış
       </Header>
       <div style={{ maxWidth: "1400px", margin: "0 auto"}}>
         <Formik initialValues={initialValues} onSubmit={handleSubmit}>
@@ -174,7 +175,7 @@ export default function PartMovementAdd() {
                   value={values.movementType}
                 >
                   <option value="">Stok Hareketi Seçin</option>
-                  <option value="Giris">Stok Girişi</option>
+                  <option value="Cikis">Stok Çıkışı</option>
                 </Field>
               </FormField>
               <FormField>

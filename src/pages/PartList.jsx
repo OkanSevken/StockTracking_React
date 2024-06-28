@@ -1,18 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { Table, Segment, Header, Loader, Dimmer, Icon, Menu, Button } from "semantic-ui-react";
+import React, { useState, useEffect, forwardRef } from "react";
+import { Table, Segment, Header, Loader, Dimmer, Icon, Menu, Button, Input } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+// Dimmer component wrapped with forwardRef
+const CustomDimmer = forwardRef((props, ref) => (
+  <Dimmer {...props} ref={ref} />
+));
 
-function PartList() {
+function PartList({ itemsPerPage = 7 }) {
   const [parts, setParts] = useState([]);
+  const [warehouseParts, setWarehouseParts] = useState([]);
   const [openPartId, setOpenPartId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 7;
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchParts();
+    fetchWarehouseParts();
   }, []);
 
   const fetchParts = async () => {
@@ -22,6 +28,15 @@ function PartList() {
       setLoading(false);
     } catch (error) {
       console.error("Veri çekme hatası:", error);
+    }
+  };
+
+  const fetchWarehouseParts = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/WarehousePart/GetAllWarehouseParts");
+      setWarehouseParts(response.data);
+    } catch (error) {
+      console.error("Depo parçaları veri çekme hatası:", error);
     }
   };
 
@@ -47,17 +62,47 @@ function PartList() {
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const filteredParts = parts.filter((part) =>
+    part.partCode.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = parts.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(parts.length / itemsPerPage);
+  const currentItems = filteredParts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredParts.length / itemsPerPage);
+
+  const getTotalStockForPart = (partId) => {
+    return warehouseParts
+      .filter((warehousePart) => warehousePart.partId === partId)
+      .reduce((total, warehousePart) => total + warehousePart.stockQuantity, 0);
+  };
+
+  const getWarehouseStockDetailsForPart = (partId) => {
+    return warehouseParts
+      .filter((warehousePart) => warehousePart.partId === partId)
+      .map((warehousePart) => ({
+        warehouseName: warehousePart.warehouseName,
+        stockQuantity: warehousePart.stockQuantity
+      }));
+  };
 
   return (
     <Segment>
       <Header as="h2" textAlign="center">Parça Listesi</Header>
-      <Dimmer active={loading}>
+      <Input
+        placeholder="Parça koduna göre ara..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+        style={{ marginBottom: '20px' }}
+      />
+      <CustomDimmer active={loading}>
         <Loader>Loading</Loader>
-      </Dimmer>
+      </CustomDimmer>
       <Table celled striped style={{ fontSize: '17px' }}>
         <Table.Header>
           <Table.Row>
@@ -88,8 +133,14 @@ function PartList() {
               <Table.Cell>{part.categoryName}</Table.Cell>
               <Table.Cell>{part.name}</Table.Cell>
               <Table.Cell>{part.partCode}</Table.Cell>
-              <Table.Cell style={{ color: part.stock < 50 ? 'red' : 'black' }}>
-                {part.stock}
+              <Table.Cell>
+                <strong>Toplam: {getTotalStockForPart(part.id)} </strong>
+                <br /><br />
+                {getWarehouseStockDetailsForPart(part.id).map((detail, index) => (
+                  <div key={index} style={{ color: detail.stockQuantity < 50 ? 'red' : 'black' }}>
+                    <br />{detail.warehouseName}: {detail.stockQuantity}
+                  </div>
+                ))}
               </Table.Cell>
             </Table.Row>
           ))}

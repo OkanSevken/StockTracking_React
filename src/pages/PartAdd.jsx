@@ -9,6 +9,7 @@ export default function PartAdd() {
   const [carModels, setCarModels] = useState([]);
   const [partBrands, setPartBrands] = useState([]);
   const [partModels, setPartModels] = useState([]);
+  const [partModelYears, setPartModelYears] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -57,6 +58,16 @@ export default function PartAdd() {
     }
   };
 
+  const fetchPartModelYears = async (selectedPartModelId, setFieldValue) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/PartModel/GetListPartModelsFromModel?id=${selectedPartModelId}`);
+      setPartModelYears(response.data);
+      setFieldValue('partModelId', selectedPartModelId);
+    } catch (error) {
+      console.error('Parça model yılları çekilirken hata:', error);
+    }
+  };
+
   const fetchCategories = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/Category/GetAllCategory');
@@ -73,6 +84,7 @@ export default function PartAdd() {
     vat: 0,
     categoryId: '',
     partModelId: 0,
+    partModelYear: 0,
     carModelId: 0,
   };
 
@@ -81,9 +93,10 @@ export default function PartAdd() {
     try {
       const requestData = {
         ...values,
-        partModelId: parseInt(values.partModelId, 10), // partModelId'yi tam sayıya çeviriyoruz
-        carModelId: parseInt(values.carModelId, 10), // carModelId'yi tam sayıya çeviriyoruz
-        categoryId: parseInt(values.categoryId, 10) // categoryId'yi tam sayıya çeviriyoruz
+        partModelId: parseInt(values.partModelId, 10),
+        partModelYear: parseInt(values.partModelYear, 10),
+        carModelId: parseInt(values.carModelId, 10),
+        categoryId: parseInt(values.categoryId, 10)
       };
 
       const response = await axios.post('http://localhost:5000/api/Part/CreateParts', requestData);
@@ -186,12 +199,32 @@ export default function PartAdd() {
                   as="select"
                   name="partModelId"
                   value={values.partModelId}
-                  onChange={(e) => setFieldValue('partModelId', parseInt(e.target.value, 10))} // Tam sayıya çevirme
+                  onChange={(e) => {
+                    const selectedPartModelId = e.target.value;
+                    setFieldValue('partModelId', selectedPartModelId);
+                    fetchPartModelYears(selectedPartModelId, setFieldValue);
+                  }}
                 >
                   <option value="">Parça Modeli Seçin</option>
                   {partModels.map((model) => (
                     <option key={model.id} value={model.id}>
                       {model.modelName}
+                    </option>
+                  ))}
+                </Field>
+              </FormField>
+              <FormField>
+                <label>Parça Modeli Yılı</label>
+                <Field
+                  as="select"
+                  name="partModelYear"
+                  value={values.partModelYear}
+                  onChange={(e) => setFieldValue('partModelYear', parseInt(e.target.value, 10))}
+                >
+                  <option value="">Parça Model Yılı Seçin</option>
+                  {partModelYears.map((model) => (
+                    <option key={model.id} value={model.year}>
+                      {model.year}
                     </option>
                   ))}
                 </Field>
