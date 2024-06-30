@@ -24,7 +24,7 @@ export default function Login() {
 
     return (
         <Grid textAlign="center" style={{ height: "100vh" }} verticalAlign="middle">
-            <Grid.Column style={{ maxWidth: 450 }}>
+            <Grid.Column style={{ maxWidth: 650 }}>
                 <h2>Giriş Yap</h2>
                 <Formik
                     initialValues={{ email: '', password: '' }}
@@ -42,7 +42,7 @@ export default function Login() {
                         <Button type="submit" color="teal" fluid size="large">
                             Giriş Yap
                         </Button>
-                        <p>Henüz hesabınız yok mu? <Link to="/register">Kayıt Ol</Link></p>
+                        <p>Henüz hesabınız yok mu? <Link to="/Register">Kayıt Ol</Link></p>
                     </Form>
                 </Formik>
             </Grid.Column>

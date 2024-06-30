@@ -3,6 +3,7 @@ import { Formik, Form, Field } from 'formik';
 import { FormField, Button, Segment, Header, Loader } from 'semantic-ui-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Select from 'react-select';
 
 export default function WarehousePart() {
   const [parts, setParts] = useState([]);
@@ -92,6 +93,16 @@ export default function WarehousePart() {
     );
   }
 
+  const partOptions = parts.map((part) => ({
+    value: part.id,
+    label: part.partCode,
+  }));
+
+  const warehouseOptions = warehouses.map((warehouse) => ({
+    value: warehouse.id,
+    label: warehouse.name,
+  }));
+
   return (
     <Segment>
       <Header as="h2" textAlign="center">
@@ -103,25 +114,21 @@ export default function WarehousePart() {
             <Form className="ui form" style={{ fontSize: '17px' }}>
               <FormField>
                 <label>Parça Kodu</label>
-                <Field as="select" name="partId" value={values.partId} onChange={(e) => setFieldValue('partId', e.target.value)}>
-                  <option value="">Parça Kodu Seçin</option>
-                  {parts.map((part) => (
-                    <option key={part.id} value={part.id}>
-                      {part.partCode}
-                    </option>
-                  ))}
-                </Field>
+                <Select
+                  name="partId"
+                  options={partOptions}
+                  onChange={(option) => setFieldValue('partId', option.value)}
+                  placeholder="Parça Kodu Seçin"
+                />
               </FormField>
               <FormField>
                 <label>Depo Adı</label>
-                <Field as="select" name="warehouseId" value={values.warehouseId} onChange={(e) => setFieldValue('warehouseId', e.target.value)}>
-                  <option value="">Depo Seçin</option>
-                  {warehouses.map((warehouse) => (
-                    <option key={warehouse.id} value={warehouse.id}>
-                      {warehouse.name}
-                    </option>
-                  ))}
-                </Field>
+                <Select
+                  name="warehouseId"
+                  options={warehouseOptions}
+                  onChange={(option) => setFieldValue('warehouseId', option.value)}
+                  placeholder="Depo Seçin"
+                />
               </FormField>
               <Button type="submit" color="teal" fluid size="large" disabled={isSubmitting}>
                 Ekle

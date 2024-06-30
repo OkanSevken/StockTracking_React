@@ -5,16 +5,22 @@ import {
     FaCogs,
     FaWarehouse,
     FaPlus, // Icon for Add Stock
-    FaMinus // Icon for Remove Stock
+    FaMinus, // Icon for Remove Stock
+    FaSignOutAlt // Icon for Logout
 } from "react-icons/fa";
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isStockOpen, setIsStockOpen] = useState(false);
+    const navigate = useNavigate();
 
     const toggle = () => setIsOpen(!isOpen);
     const toggleStockMenu = () => setIsStockOpen(!isStockOpen);
+    
+    const handleLogout = () => {
+        navigate('/Login'); // Kullanıcıyı login sayfasına yönlendir
+    };
 
     const menuItem = [
         {
@@ -42,7 +48,13 @@ const Sidebar = () => {
             path: "/CreateWarehousePart",
             name: "Parça Depo İşlemleri",
             icon: <FaWarehouse />
-        }
+        },
+        {
+            path: "/CreateWarehouse",
+            name: " Depo Oluştur",
+            icon: <FaWarehouse />
+        },
+        
     ];
 
     return (
@@ -88,6 +100,10 @@ const Sidebar = () => {
                         )}
                     </div>
                 ))}
+                <div className="link" onClick={handleLogout}>
+                    <div className="icon"><FaSignOutAlt /></div>
+                    <div className="link_text" style={{ display: isOpen ? "block" : "none" }}>Çıkış Yap</div>
+                </div>
             </div>
         </div>
     );

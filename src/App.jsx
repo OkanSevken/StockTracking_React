@@ -11,12 +11,15 @@ import WarehousePart from './pages/WarehousePart';
 import PartAdd from './pages/PartAdd';
 import PartDetail from './pages/PartDetail';
 import DropStock from './pages/DropStock';
+import WarehouseAdd from './pages/WarehouseAdd';
+import Register from './pages/Register';
+import LowStockPartsList from './pages/LowStockPartList';
 
 const App = () => {
   const location = useLocation();
 
   // Giriş ekranında sidebar görünmesin
-  const shouldShowSidebar = location.pathname !== '/login';
+  const shouldShowSidebar = location.pathname !== '/Login'&& location.pathname !== '/login' && location.pathname !== '/Register';
 
   return (
     <div className="container">
@@ -27,11 +30,14 @@ const App = () => {
           <Route path="/home" element={<HomePage />} />
           <Route path="/PartList" element={<PartList />} />
           <Route path="/PartDetail/:id" element={<PartDetail/>} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path='/Register' element={<Register/>}/>
           <Route path='/StockAdd' element={<PartMovementAdd/>} />
           <Route path='/DropStock' element={<DropStock/>}/>
           <Route path='/CreateWarehousePart' element={<WarehousePart/>} />
           <Route path='/CreatePart' element={<PartAdd/>} />
+          <Route path='/CreateWarehouse' element={<WarehouseAdd/>}/>
+          <Route path='/LowerPartStock' element={<LowStockPartsList/>}/>
         </Routes>
       </div>
     </div>

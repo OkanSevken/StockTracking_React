@@ -3,6 +3,7 @@ import { Formik, Form, Field } from "formik";
 import { FormField, Button, Segment, Header, Loader } from "semantic-ui-react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import Select from "react-select";
 
 export default function PartMovementAdd() {
   const [parts, setParts] = useState([]);
@@ -47,7 +48,11 @@ export default function PartMovementAdd() {
       const response = await axios.post(
         `http://localhost:5000/api/Warehouse/GetListWarehouseFromPart?id=${selectedPartId}`
       );
-      setWarehouses(response.data);
+      const warehouseOptions = response.data.map((warehouse) => ({
+        value: warehouse.id,
+        label: warehouse.warehouseName,
+      }));
+      setWarehouses(warehouseOptions);
       setFieldValue("partId", selectedPartId);
       setFetchingWarehouses(false);
     } catch (error) {
@@ -62,7 +67,7 @@ export default function PartMovementAdd() {
     amount: "",
     price: "",
     invoice: false,
-    movementType: "",
+    movementType: "Giris",
     description: "",
   };
 
@@ -97,6 +102,11 @@ export default function PartMovementAdd() {
     );
   }
 
+  const partOptions = parts.map((part) => ({
+    value: part.id,
+    label: part.partCode,
+  }));
+
   return (
     <Segment>
       <Header as="h2" textAlign="center">
@@ -108,37 +118,22 @@ export default function PartMovementAdd() {
             <Form className="ui form" style={{ fontSize: '17px' }}>
               <FormField>
                 <label>Parça Kodu</label>
-                <Field
-                  as="select"
+                <Select
                   name="partId"
-                  onChange={(e) =>
-                    fetchWarehousesForPart(e.target.value, setFieldValue)
-                  }
-                  value={values.partId}
-                >
-                  <option value="">Parça Kodu Seçin</option>
-                  {parts.map((part) => (
-                    <option key={part.id} value={part.id}>
-                      {part.partCode}
-                    </option>
-                  ))}
-                </Field>
+                  options={partOptions}
+                  onChange={(option) => fetchWarehousesForPart(option.value, setFieldValue)}
+                  placeholder="Parça Kodu Seçin"
+                />
               </FormField>
               <FormField>
                 <label>Depo Adı</label>
-                <Field
-                  as="select"
+                <Select
                   name="warehouseId"
-                  value={values.warehouseId}
-                  onChange={(e) => setFieldValue("warehouseId", e.target.value)}
-                >
-                  <option value="">Depo Seçin</option>
-                  {warehouses.map((warehouse) => (
-                    <option key={warehouse.id} value={warehouse.id}>
-                      {warehouse.warehouseName}
-                    </option>
-                  ))}
-                </Field>
+                  options={warehouses}
+                  onChange={(option) => setFieldValue("warehouseId", option.value)}
+                  placeholder="Depo Seçin"
+                  isDisabled={fetchingWarehouses}
+                />
                 {fetchingWarehouses && <Loader active inline size="small" />}
               </FormField>
               <FormField>
@@ -162,20 +157,6 @@ export default function PartMovementAdd() {
               <FormField>
                 <label>Fatura Var Mı?</label>
                 <Field name="invoice" type="checkbox" />
-              </FormField>
-              <FormField>
-                <label>Hareket Tipi</label>
-                <Field
-                  as="select"
-                  name="movementType"
-                  onChange={(e) =>
-                    setFieldValue("movementType", e.target.value)
-                  }
-                  value={values.movementType}
-                >
-                  <option value="">Stok Hareketi Seçin</option>
-                  <option value="Giris">Stok Girişi</option>
-                </Field>
               </FormField>
               <FormField>
                 <label>Açıklama</label>

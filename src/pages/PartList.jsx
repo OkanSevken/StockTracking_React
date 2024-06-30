@@ -1,5 +1,5 @@
 import React, { useState, useEffect, forwardRef } from "react";
-import { Table, Segment, Header, Loader, Dimmer, Icon, Menu, Button, Input } from "semantic-ui-react";
+import { Table, Segment, Header, Loader, Dimmer, Icon, Menu, Button, Input, Message } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -8,7 +8,7 @@ const CustomDimmer = forwardRef((props, ref) => (
   <Dimmer {...props} ref={ref} />
 ));
 
-function PartList({ itemsPerPage = 7 }) {
+function PartList({ itemsPerPage = 3 }) {
   const [parts, setParts] = useState([]);
   const [warehouseParts, setWarehouseParts] = useState([]);
   const [openPartId, setOpenPartId] = useState(null);
@@ -94,12 +94,17 @@ function PartList({ itemsPerPage = 7 }) {
   return (
     <Segment>
       <Header as="h2" textAlign="center">Parça Listesi</Header>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
       <Input
         placeholder="Parça koduna göre ara..."
         value={searchTerm}
         onChange={handleSearchChange}
         style={{ marginBottom: '20px' }}
       />
+      <Button as={Link} to="/LowerPartStock" color="red">
+          Düşük Stoklu Parçalar
+        </Button>
+        </div>
       <CustomDimmer active={loading}>
         <Loader>Loading</Loader>
       </CustomDimmer>
@@ -114,36 +119,43 @@ function PartList({ itemsPerPage = 7 }) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {currentItems.map((part) => (
-            <Table.Row key={part.id}>
-              <Table.Cell className="settings-cell">
-                <div onClick={() => toggleMenu(part.id)}>
-                  <Icon name='cog' className="settings-icon" />
-                  {openPartId === part.id && (
-                    <div className="settings-dropdown">
-                      <Menu>
-                        <Menu.Item as={Link} to={`/PartDetail/${part.id}`}>Detay</Menu.Item>
-                        {/* <Menu.Item onClick={() => handleUpdateClick(part.id)}>Güncelle</Menu.Item>
-                        <Menu.Item onClick={() => handleDeleteClick(part.id)}>Sil</Menu.Item> */}
-                      </Menu>
-                    </div>
-                  )}
-                </div>
-              </Table.Cell>
-              <Table.Cell>{part.categoryName}</Table.Cell>
-              <Table.Cell>{part.name}</Table.Cell>
-              <Table.Cell>{part.partCode}</Table.Cell>
-              <Table.Cell>
-                <strong>Toplam: {getTotalStockForPart(part.id)} </strong>
-                <br /><br />
-                {getWarehouseStockDetailsForPart(part.id).map((detail, index) => (
-                  <div key={index} style={{ color: detail.stockQuantity < 50 ? 'red' : 'black' }}>
-                    <br />{detail.warehouseName}: {detail.stockQuantity}
+          {currentItems.map((part) => {
+            const totalStock = getTotalStockForPart(part.id);
+            const isStockLow = totalStock < 50;
+
+            return (
+              <Table.Row key={part.id} style={{ backgroundColor: isStockLow ? 'rgba(255,0,0,0.1)' : 'transparent' }}>
+                <Table.Cell className="settings-cell">
+                  <div onClick={() => toggleMenu(part.id)}>
+                    <Icon name='cog' className="settings-icon" />
+                    {openPartId === part.id && (
+                      <div className="settings-dropdown">
+                        <Menu>
+                          <Menu.Item as={Link} to={`/PartDetail/${part.id}`}>Detay</Menu.Item>
+                          {/* <Menu.Item onClick={() => handleUpdateClick(part.id)}>Güncelle</Menu.Item>
+                          <Menu.Item onClick={() => handleDeleteClick(part.id)}>Sil</Menu.Item> */}
+                        </Menu>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </Table.Cell>
-            </Table.Row>
-          ))}
+                </Table.Cell>
+                <Table.Cell>{part.categoryName}</Table.Cell>
+                <Table.Cell>{part.name}</Table.Cell>
+                <Table.Cell>{part.partCode}</Table.Cell>
+                <Table.Cell>
+                  <strong style={{ color: isStockLow ? 'red' : 'black' }}>
+                    Toplam: {totalStock} {isStockLow && '(Düşük Stok)'}
+                  </strong>
+                  <br /><br />
+                  {getWarehouseStockDetailsForPart(part.id).map((detail, index) => (
+                    <div key={index} style={{ color: detail.stockQuantity < 50 ? 'red' : 'black' }}>
+                      <br />{detail.warehouseName}: {detail.stockQuantity}
+                    </div>
+                  ))}
+                </Table.Cell>
+              </Table.Row>
+            );
+          })}
         </Table.Body>
       </Table>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>

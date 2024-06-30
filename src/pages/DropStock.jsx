@@ -3,7 +3,7 @@ import { Formik, Form, Field } from "formik";
 import { FormField, Button, Segment, Header, Loader } from "semantic-ui-react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
-
+import Select from "react-select";
 
 export default function DropStock() {
   const [parts, setParts] = useState([]);
@@ -63,7 +63,7 @@ export default function DropStock() {
     amount: "",
     price: "",
     invoice: false,
-    movementType: "",
+    movementType: "Cikis",
     description: "",
   };
 
@@ -98,6 +98,16 @@ export default function DropStock() {
     );
   }
 
+  const partOptions = parts.map((part) => ({
+    value: part.id,
+    label: part.partCode,
+  }));
+
+  const warehouseOptions = warehouses.map((warehouse) => ({
+    value: warehouse.id,
+    label: warehouse.warehouseName,
+  }));
+
   return (
     <Segment>
       <Header as="h2" textAlign="center">
@@ -109,83 +119,38 @@ export default function DropStock() {
             <Form className="ui form" style={{ fontSize: '17px' }}>
               <FormField>
                 <label>Parça Kodu</label>
-                <Field
-                  as="select"
+                <Select
                   name="partId"
-                  onChange={(e) =>
-                    fetchWarehousesForPart(e.target.value, setFieldValue)
-                  }
-                  value={values.partId}
-                >
-                  <option value="">Parça Kodu Seçin</option>
-                  {parts.map((part) => (
-                    <option key={part.id} value={part.id}>
-                      {part.partCode}
-                    </option>
-                  ))}
-                </Field>
+                  options={partOptions}
+                  onChange={(option) => fetchWarehousesForPart(option.value, setFieldValue)}
+                  placeholder="Parça Kodu Seçin"
+                />
               </FormField>
               <FormField>
                 <label>Depo Adı</label>
-                <Field
-                  as="select"
+                <Select
                   name="warehouseId"
-                  value={values.warehouseId}
-                  onChange={(e) => setFieldValue("warehouseId", e.target.value)}
-                >
-                  <option value="">Depo Seçin</option>
-                  {warehouses.map((warehouse) => (
-                    <option key={warehouse.id} value={warehouse.id}>
-                      {warehouse.warehouseName}
-                    </option>
-                  ))}
-                </Field>
-                {fetchingWarehouses && <Loader active inline size="small" />}
+                  options={warehouseOptions}
+                  onChange={(option) => setFieldValue("warehouseId", option.value)}
+                  placeholder="Depo Seçin"
+                  isDisabled={fetchingWarehouses}
+                />
               </FormField>
               <FormField>
-                <label>Parça Adedi</label>
-                <Field
-                  name="amount"
-                  type="number"
-                  placeholder="Miktar"
-                  style={{ width: "100%" }}
-                />
+                <label>Miktar</label>
+                <Field type="number" name="amount" placeholder="Miktar" />
               </FormField>
               <FormField>
                 <label>Birim Fiyat</label>
-                <Field
-                  name="price"
-                  type="number"
-                  placeholder="Fiyat(Kdv Hariç)"
-                  style={{ width: "100%" }}
-                />
+                <Field type="number" name="price" placeholder="Fiyat(Kdv Hariç)" />
               </FormField>
               <FormField>
                 <label>Fatura Var Mı?</label>
-                <Field name="invoice" type="checkbox" />
-              </FormField>
-              <FormField>
-                <label>Hareket Tipi</label>
-                <Field
-                  as="select"
-                  name="movementType"
-                  onChange={(e) =>
-                    setFieldValue("movementType", e.target.value)
-                  }
-                  value={values.movementType}
-                >
-                  <option value="">Stok Hareketi Seçin</option>
-                  <option value="Cikis">Stok Çıkışı</option>
-                </Field>
+                <Field type="checkbox" name="invoice" />
               </FormField>
               <FormField>
                 <label>Açıklama</label>
-                <Field
-                  name="description"
-                  type="text"
-                  placeholder="Açıklama"
-                  style={{ width: "100%" }}
-                />
+                <Field type="text" name="description" placeholder="Açıklama" />
               </FormField>
               <Button
                 type="submit"
